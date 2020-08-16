@@ -19,7 +19,7 @@ app.post('/posts/:id/comments', async (req, res)=>{
     const {content} = req.body;
 
     const comments = commentsByPostId[req.params.id] || [];
-    comments.push({id: commentId, content});
+    comments.push({id: commentId, content, status:"pending"});
     commentsByPostId[req.params.id] = comments;  
     res.status(201).send(comments);
 
@@ -29,6 +29,16 @@ app.post('/posts/:id/comments', async (req, res)=>{
             "postId": req.params.id,
             "id": commentId,
             "comment": content
+        }
+    })
+
+    await axios.post('http://localhost:4003/events', {
+        'type': 'CommentCreate',
+        'data': {
+            "postId": req.params.id,
+            "id": commentId,
+            "comment": content,
+            // "status": "pending"
         }
     })
 })
